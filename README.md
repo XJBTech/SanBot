@@ -1,3 +1,5 @@
-# SanBot サンボト 叁Bot
+# ~ Sanbot ~ サンボト ~
 
-Current SanBot Version: SanBot No.1 
+> "It has three wheels that make it very moe."
+
+**Current SanBot Version: SanBot No.1**
