@@ -1,1 +1,1 @@
-# Tribot
+# ~ Sanbot ~ サンボト ~
