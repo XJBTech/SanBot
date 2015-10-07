@@ -1,2 +1,5 @@
 # ~ Sanbot ~ サンボト ~
-it has three wheels which mean very moe.
+
+> "It has three wheels that make it very moe."
+
+**Current SanBot Version: SanBot No.1**
