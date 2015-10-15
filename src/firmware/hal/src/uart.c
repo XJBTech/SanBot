@@ -29,7 +29,7 @@
 #include "nvicconf.h"
 #include "debug.h"
 
-#if defined PLATFORM_DEVICE_SANBOT_A 
+#if defined PLATFORM_DEVICE_SANBOT_A
 
   #define UART_TYPE       USART1
   #define UART_PERIF      RCC_APB2Periph_USART1
@@ -67,14 +67,14 @@ static DMA_InitTypeDef DMA_InitStructureShare;
 
 #define CCR_ENABLE_SET  ((uint32_t)0x00000001)
 
-void uartRxTask(void *param);
+void uartRxTask ( void * param );
 
-void uartDmaInit(void)
+void uartDmaInit ( void )
 {
   NVIC_InitTypeDef NVIC_InitStructure;
 
-  DMA_InitStructureShare.DMA_PeripheralBaseAddr = (uint32_t)&UART_TYPE->DR;
-  DMA_InitStructureShare.DMA_MemoryBaseAddr = (uint32_t)outBuffer;
+  DMA_InitStructureShare.DMA_PeripheralBaseAddr = ( uint32_t ) &UART_TYPE->DR;
+  DMA_InitStructureShare.DMA_MemoryBaseAddr = ( uint32_t ) outBuffer;
   DMA_InitStructureShare.DMA_DIR = DMA_DIR_PeripheralDST;
   DMA_InitStructureShare.DMA_BufferSize = 0;
   DMA_InitStructureShare.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
@@ -89,10 +89,10 @@ void uartDmaInit(void)
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = NVIC_UART_PRI;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  NVIC_Init ( &NVIC_InitStructure );
 }
 
-void uartInit(void)
+void uartInit ( void )
 {
 
   USART_InitTypeDef USART_InitStructure;
@@ -100,21 +100,21 @@ void uartInit(void)
   NVIC_InitTypeDef NVIC_InitStructure;
 
   /* Enable GPIO and USART clock */
-  RCC_APB2PeriphClockCmd(UART_GPIO_PERIF, ENABLE);
+  RCC_APB2PeriphClockCmd ( UART_GPIO_PERIF, ENABLE );
 
-#if defined PLATFORM_DEVICE_SANBOT_A
-  RCC_APB2PeriphClockCmd(UART_PERIF, ENABLE);
-#endif
+  #if defined PLATFORM_DEVICE_SANBOT_A
+  RCC_APB2PeriphClockCmd ( UART_PERIF, ENABLE );
+  #endif
 
   /* Configure USART Rx as input floating */
   GPIO_InitStructure.GPIO_Pin   = UART_GPIO_RX;
   GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(UART_GPIO_PORT, &GPIO_InitStructure);
-/* Configure USART Tx as alternate function push-pull */
+  GPIO_Init ( UART_GPIO_PORT, &GPIO_InitStructure );
+  /* Configure USART Tx as alternate function push-pull */
   GPIO_InitStructure.GPIO_Pin   = UART_GPIO_TX;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF_PP;
-  GPIO_Init(UART_GPIO_PORT, &GPIO_InitStructure);
+  GPIO_Init ( UART_GPIO_PORT, &GPIO_InitStructure );
 
   USART_InitStructure.USART_BaudRate            = 115200;
   USART_InitStructure.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;
@@ -123,95 +123,98 @@ void uartInit(void)
   USART_InitStructure.USART_StopBits            = USART_StopBits_1;
   USART_InitStructure.USART_Parity              = USART_Parity_No ;
   USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  USART_Init(UART_TYPE, &USART_InitStructure);
+  USART_Init ( UART_TYPE, &USART_InitStructure );
 
   NVIC_InitStructure.NVIC_IRQChannel = UART_NVIC_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  NVIC_Init ( &NVIC_InitStructure );
 
-  USART_ITConfig(UART_TYPE, USART_IT_RXNE, ENABLE);
+  USART_ITConfig ( UART_TYPE, USART_IT_RXNE, ENABLE );
 
-  USART_Cmd(UART_TYPE, ENABLE);
+  USART_Cmd ( UART_TYPE, ENABLE );
 
   // uartDmaInit();
 
-  DEBUG_PRINT("init successfully\n");
+  DEBUG_PRINT ( "init successfully\n" );
 }
 
-void uartRxTask(void *param)
+void uartRxTask ( void * param )
 {
 
 }
 
-void uartSendData(uint32_t size, uint8_t* data)
+void uartSendData ( uint32_t size, uint8_t * data )
 {
   uint32_t i;
 
-  for(i = 0; i < size; i++)
+  for ( i = 0; i < size; i++ )
   {
-    while (!(UART_TYPE->SR & USART_FLAG_TXE));
-    UART_TYPE->DR = (data[i] & 0xFF);
+    while ( ! ( UART_TYPE->SR & USART_FLAG_TXE ) );
+
+    UART_TYPE->DR = ( data[i] & 0xFF );
   }
 }
 
-int uartPutchar(int ch)
+int uartPutchar ( int ch )
 {
-    uartSendData(1, (uint8_t *)&ch);
+  uartSendData ( 1, ( uint8_t * ) &ch );
 
-    return (unsigned char)ch;
+  return ( unsigned char ) ch;
 }
 
-void uartSendDataDma(uint32_t size, uint8_t* data)
+void uartSendDataDma ( uint32_t size, uint8_t * data )
 {
-    memcpy(outBuffer, data, size);
-    DMA_InitStructureShare.DMA_BufferSize = size;
-    // Wait for DMA to be free
-    while(UART_DMA_CH->CCR & CCR_ENABLE_SET);
-    DMA_Init(UART_DMA_CH, &DMA_InitStructureShare);
-    // Enable the Transfer Complete interrupt
-    DMA_ITConfig(UART_DMA_CH, DMA_IT_TC, ENABLE);
-    USART_DMACmd(UART_TYPE, USART_DMAReq_Tx, ENABLE);
-    DMA_Cmd(UART_DMA_CH, ENABLE);
+  memcpy ( outBuffer, data, size );
+  DMA_InitStructureShare.DMA_BufferSize = size;
+
+  // Wait for DMA to be free
+  while ( UART_DMA_CH->CCR & CCR_ENABLE_SET );
+
+  DMA_Init ( UART_DMA_CH, &DMA_InitStructureShare );
+  // Enable the Transfer Complete interrupt
+  DMA_ITConfig ( UART_DMA_CH, DMA_IT_TC, ENABLE );
+  USART_DMACmd ( UART_TYPE, USART_DMAReq_Tx, ENABLE );
+  DMA_Cmd ( UART_DMA_CH, ENABLE );
 }
 
-void uartIsr(void)
+void uartIsr ( void )
 {
 
 }
 
-void uartDmaIsr(void)
+void uartDmaIsr ( void )
 {
 
 }
 
 #if defined PLATFORM_REV_DEXMO_A_RIGHT
 
-void __attribute__((used)) USART3_IRQHandler(void)
+void __attribute__ ( ( used ) ) USART3_IRQHandler ( void )
 {
   uartIsr();
 }
 
-void __attribute__((used)) DMA1_Channel6_IRQHandler(void)
+void __attribute__ ( ( used ) ) DMA1_Channel6_IRQHandler ( void )
 {
-#if defined(UART_OUTPUT_TRACE_DATA) || defined(ADC_OUTPUT_RAW_DATA)
+  #if defined(UART_OUTPUT_TRACE_DATA) || defined(ADC_OUTPUT_RAW_DATA)
   uartDmaIsr();
-#endif
+  #endif
 }
 
 #elif defined PLATFORM_REV_DEXMO_A_LEFT || defined PLATFORM_REV_DEXMO_DONGLE_A
 
-void __attribute__((used)) USART1_IRQHandler(void)
+void __attribute__ ( ( used ) ) USART1_IRQHandler ( void )
 {
   uartIsr();
 }
 
-void __attribute__((used)) DMA1_Channel4_IRQHandler(void)
+void __attribute__ ( ( used ) ) DMA1_Channel4_IRQHandler ( void )
 {
-#if defined(UART_OUTPUT_TRACE_DATA) || defined(ADC_OUTPUT_RAW_DATA)
+  #if defined(UART_OUTPUT_TRACE_DATA) || defined(ADC_OUTPUT_RAW_DATA)
   uartDmaIsr();
-#endif
+  #endif
 }
 
 #endif

@@ -1,17 +1,3 @@
-/*
- *  ____    ____    __   __   ______  ______
- * /\  _`\ /\  _`\ /\ \ /\ \ /\__  _\/\  _  \
- * \ \ \/\ \ \ \L\_\ `\`\/'/'\/_/\ \/\ \ \L\ \
- *  \ \ \ \ \ \  _\L`\/ > <     \ \ \ \ \  __ \
- *   \ \ \_\ \ \ \L\ \ \/'/\`\   \ \ \ \ \ \/\ \
- *    \ \____/\ \____/ /\_\\ \_\  \ \_\ \ \_\ \_\
- *     \/___/  \/___/  \/_/ \/_/   \/_/  \/_/\/_/
- *
- * Originally created by Dexta Robotics.
- * Copyright <C> Dexta Robotics, 2015.
- * All rights reserved.
- */
-
 #define DEBUG_MODULE "NRF"
 
 #include <string.h>
@@ -30,24 +16,94 @@
 
 #if defined PLATFORM_DEVICE_SANBOT_A
 
+#define nRF24L01_DEBUG_SPI	"SPI1\n"
+#define nRF24L01_SPI 		SPI1
+#define nRF24L01_SPI1
+
+#define nRF24L01_SPI_BaudRatePrescaler	SPI_BaudRatePrescaler_16
+
+#define nRF24L01_DMA_DR_ADDR	SPI1_DR_Addr
+#define nRF24L01_DMA_RX_ADDR	SPI1_Rx_Buff
+#define nRF24L01_DMA_TX_ADDR	SPI1_Tx_Buff
+
 #define nRF24L01_RCC_SPI  RCC_APB2Periph_SPI1
-#define nRF24L01_RCC_ALL  (RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB)
-
-#define nRF24L01_PORT_CE   GPIOB
-#define nRF24L01_PIN_CE    GPIO_Pin_13
-
-#define nRF24L01_PORT_CSN  GPIOB
-#define nRF24L01_PIN_CSN   GPIO_Pin_0
-
-#define nRF24L01_PORT_IRQ  GPIOB
-#define nRF24L01_PIN_IRQ   GPIO_Pin_1
+#define nRF24L01_RCC_ALL  RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC
 
 #define nRF24L01_PORT_SPI	GPIOA
 #define nRF24L01_PIN_SCK	GPIO_Pin_5
 #define nRF24L01_PIN_MISO	GPIO_Pin_6
 #define nRF24L01_PIN_MOSI	GPIO_Pin_7
 
+#define nRF24L01_PORT_CE   GPIOB
+#define nRF24L01_PIN_CE    GPIO_Pin_12
+
+#define nRF24L01_PORT_CSN  GPIOA
+#define nRF24L01_PIN_CSN   GPIO_Pin_4
+
+#define nRF24L01_PORT_IRQ  GPIOB
+#define nRF24L01_PIN_IRQ   GPIO_Pin_11
+
+
+#elif defined PLATFORM_DEVICE_SANBOT_DONGLE
+
+#define nRF24L01_DEBUG_SPI	"SPI1\n"
+#define nRF24L01_SPI 		SPI1
+#define nRF24L01_SPI1
+
+#define nRF24L01_SPI_BaudRatePrescaler	SPI_BaudRatePrescaler_16
+
+#define nRF24L01_DMA_DR_ADDR	SPI1_DR_Addr
+#define nRF24L01_DMA_RX_ADDR	SPI1_Rx_Buff
+#define nRF24L01_DMA_TX_ADDR	SPI1_Tx_Buff
+
+#define nRF24L01_RCC_SPI  	RCC_APB2Periph_SPI1
+#define nRF24L01_RCC_ALL  	(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB)
+
+#define nRF24L01_PORT_CE  	GPIOB
+#define nRF24L01_PIN_CE   	GPIO_Pin_1
+
+#define nRF24L01_PORT_CSN 	GPIOB
+#define nRF24L01_PIN_CSN  	GPIO_Pin_0
+
+#define nRF24L01_PORT_IRQ 	GPIOA
+#define nRF24L01_PIN_IRQ  	GPIO_Pin_4
+
+#define nRF24L01_PORT_SPI	GPIOA
+#define nRF24L01_PIN_SCK	GPIO_Pin_5
+#define nRF24L01_PIN_MISO	GPIO_Pin_6
+#define nRF24L01_PIN_MOSI	GPIO_Pin_7
+
+#elif defined PLATFORM_DEVICE_SANBOT_REMOTE
+
+#define nRF24L01_DEBUG_SPI	"SPI2\n"
+#define nRF24L01_SPI 		SPI2
+#define nRF24L01_SPI2
+
+#define nRF24L01_SPI_BaudRatePrescaler	SPI_BaudRatePrescaler_16
+
+#define nRF24L01_DMA_DR_ADDR	SPI2_DR_Addr
+#define nRF24L01_DMA_RX_ADDR	SPI2_Rx_Buff
+#define nRF24L01_DMA_TX_ADDR	SPI2_Tx_Buff
+
+#define nRF24L01_RCC_SPI  RCC_APB1Periph_SPI2
+#define nRF24L01_RCC_ALL  RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC
+
+#define nRF24L01_PORT_SPI	GPIOB
+#define nRF24L01_PIN_SCK	GPIO_Pin_13
+#define nRF24L01_PIN_MISO	GPIO_Pin_14
+#define nRF24L01_PIN_MOSI	GPIO_Pin_15
+
+#define nRF24L01_PORT_CE   GPIOB
+#define nRF24L01_PIN_CE    GPIO_Pin_5
+
+#define nRF24L01_PORT_CSN  GPIOB
+#define nRF24L01_PIN_CSN   GPIO_Pin_4
+
+#define nRF24L01_PORT_IRQ  GPIOB
+#define nRF24L01_PIN_IRQ   GPIO_Pin_12
+
 #endif
+
 
 #define nRF24L01_CSN_1()	GPIO_SetBits(nRF24L01_PORT_CSN, nRF24L01_PIN_CSN)
 #define nRF24L01_CSN_0()	GPIO_ResetBits(nRF24L01_PORT_CSN, nRF24L01_PIN_CSN)
@@ -55,7 +111,15 @@
 #define nRF24L01_CE_0()		GPIO_ResetBits(nRF24L01_PORT_CE, nRF24L01_PIN_CE)
 #define nRF24L01_IRQ_Read()	  (nRF24L01_PORT_IRQ->IDR & nRF24L01_PIN_IRQ)
 
-uint8_t nrf_led = 1;
+// #define nRF24L01_IRQ_EXTI_LINE                    EXTI_Line4
+// #define nRF24L01_IRQ_EXTI_PORT_SOURCE             GPIO_PortSourceGPIOA
+// #define nRF24L01_IRQ_EXTI_PIN_SOURCE              GPIO_PinSource4
+// #define nRF24L01_IRQ_EDGE                         EXTI_Trigger_Falling
+// #define nRF24L01_IRQ_EXTI_IRQn                    EXTI15_10_IRQn
+
+// #define nRF24L01_IRQ_EXTI_PREEMPTION_PRIORITY     14
+// #define nRF24L01_IRQ_EXTI_SUB_PRIORITY            0
+
 
 /* 发射端和接收端地址 */
 uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0x34,0x43,0x10,0x10,0x00};
@@ -105,53 +169,55 @@ uint8_t nrf24l01SetAddress(void)
 
 	}
 
+	DEBUG_PRINT("my address is [%02X]\n", _id);
+
 	return _id;
 }
 
 
-void nrf24l01DmaConfiguration(void)
-{
-	DMA_InitTypeDef  DMA_InitStructure;
+// void nrf24l01DmaConfiguration(void)
+// {
+// 	DMA_InitTypeDef  DMA_InitStructure;
 
 
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+// 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
 
-	DMA_DeInit(DMA1_Channel4);
-	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)SPI1_DR_Addr;
-	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)SPI1_Rx_Buff;
-	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-	DMA_InitStructure.DMA_BufferSize = SPI_BUFFER_SIZE;
-	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
-	DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
-	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-	DMA_Init(DMA1_Channel4, &DMA_InitStructure);
+// 	DMA_DeInit(DMA1_Channel4);
+// 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)SPI1_DR_Addr;
+// 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)SPI1_Rx_Buff;
+// 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+// 	DMA_InitStructure.DMA_BufferSize = SPI_BUFFER_SIZE;
+// 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+// 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+// 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+// 	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+// 	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+// 	DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
+// 	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+// 	DMA_Init(DMA1_Channel4, &DMA_InitStructure);
 
 
-	DMA_DeInit(DMA1_Channel5);
-	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)SPI1_DR_Addr;
-	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)SPI1_Tx_Buff;
-	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
-	DMA_InitStructure.DMA_BufferSize = SPI_BUFFER_SIZE;
-	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
-	DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;
-	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-	DMA_Init(DMA1_Channel5, &DMA_InitStructure);
+// 	DMA_DeInit(DMA1_Channel5);
+// 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)SPI1_DR_Addr;
+// 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)SPI1_Tx_Buff;
+// 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
+// 	DMA_InitStructure.DMA_BufferSize = SPI_BUFFER_SIZE;
+// 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+// 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+// 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+// 	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+// 	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+// 	DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;
+// 	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+// 	DMA_Init(DMA1_Channel5, &DMA_InitStructure);
 
 
-	SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
+// 	SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
 
-	SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
+// 	SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
 
-}
+// }
 
 void nrf24l01SpiConfiguration(void)
 {
@@ -166,12 +232,12 @@ void nrf24l01SpiConfiguration(void)
 	SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
 	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
 
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
+	SPI_InitStructure.SPI_BaudRatePrescaler = nRF24L01_SPI_BaudRatePrescaler;
 	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;	/* 数据位传输次序：高位先传 */
 	SPI_InitStructure.SPI_CRCPolynomial = 7;			/* CRC多项式寄存器，复位后为7。本例程不用 */
-	SPI_Init(SPI1, &SPI_InitStructure);
+	SPI_Init(nRF24L01_SPI, &SPI_InitStructure);
 
-	SPI_Cmd(SPI1, ENABLE);				/* 使能SPI  */
+	SPI_Cmd(nRF24L01_SPI, ENABLE);				/* 使能SPI  */
 }
 
 // void EXTIX_Init(void)
@@ -221,7 +287,12 @@ void nrf24l01Init(void)
 
 	GPIO_InitTypeDef GPIO_InitStructure;
 
+#if defined nRF24L01_SPI1
+	RCC_APB2PeriphClockCmd(nRF24L01_RCC_SPI, ENABLE);
+#else
 	RCC_APB1PeriphClockCmd(nRF24L01_RCC_SPI, ENABLE);
+#endif
+	
 	RCC_APB2PeriphClockCmd(nRF24L01_RCC_ALL | RCC_APB2Periph_AFIO, ENABLE);
 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -266,16 +337,16 @@ void nrf24l01Init(void)
 static uint8_t nrf24l01WriteReadByte(uint8_t dat)
 {
 	/* 当SPI发送缓冲器非空时等待 */
-	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+	while (SPI_I2S_GetFlagStatus(nRF24L01_SPI, SPI_I2S_FLAG_TXE) == RESET);
 
 	/* 通过SPI发送一字节数据 */
-	SPI_I2S_SendData(SPI1, dat);
+	SPI_I2S_SendData(nRF24L01_SPI, dat);
 
 	/* 当SPI接收缓冲器为空时等待 */
-	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
+	while (SPI_I2S_GetFlagStatus(nRF24L01_SPI, SPI_I2S_FLAG_RXNE) == RESET);
 
 	/* 通过SPI接收一字节数据 */
-	return SPI_I2S_ReceiveData(SPI1);
+	return SPI_I2S_ReceiveData(nRF24L01_SPI);
 }
 
 // 用于向nRF24L01特定的寄存器写入数据
@@ -392,7 +463,7 @@ void nrf24l01RxMode(void)
 
 	/*CE拉高，进入接收模式*/
 	nRF24L01_CE_1();
-	delay_us(1);
+	delay_us(130);
 }
 
 void nrf24l01ChangeAddress(uint8_t Address)
@@ -411,8 +482,8 @@ void nrf24l01ChangeAddress(uint8_t Address)
 	nrf24l01WriteReg(NRF_WRITE_REG+CONFIG, 0x0e);    /* 配置基本工作模式的参数;PWR_UP,EN_CRC,16BIT_CRC,发射模式,开启所有中断 */
 
 	/*CE拉高，进入发送模式*/
-	nRF24L01_CE_1();
-	delay_us(11);  /* CE要拉高一段时间才进入发送模式，时间大于10us */
+	// nRF24L01_CE_1();
+	// delay_us(100);  /* CE要拉高一段时间才进入发送模式，时间大于10us */
 }
 
 // 设置nRF24L01工作在发送模式
@@ -430,8 +501,8 @@ void nrf24l01TxMode(void)
 	nrf24l01WriteReg(NRF_WRITE_REG+CONFIG, 0x0e);    /* 配置基本工作模式的参数;PWR_UP,EN_CRC,16BIT_CRC,发射模式,开启所有中断 */
 
 	/*CE拉高，进入发送模式*/
-	nRF24L01_CE_1();
-	delay_us(11);  /* CE要拉高一段时间才进入发送模式，时间大于10us */
+	// nRF24L01_CE_1();
+	// delay_us(100);  /* CE要拉高一段时间才进入发送模式，时间大于10us */
 }
 
 // Check
@@ -504,6 +575,8 @@ uint8_t nrf24l01TxData(uint8_t *_pTxBuf)
 	/*CE为高，_pTxBuf非空，发送数据包 */
 	nRF24L01_CE_1();
 
+	delay_us(100);
+
 	while((nRF24L01_IRQ_Read() != 0) && (ulCount < 4096))
 	{
 		// printf("ulCount - %d", ulCount);
@@ -550,8 +623,8 @@ uint8_t nrf24l01RxData(uint8_t *_pRxBuf)
 	uint8_t ucState;
 	uint32_t ulCount = 0;
 
-	nrf24l01ReadBuf(RD_RX_PLOAD, _pRxBuf, RX_PLOAD_WIDTH); /* 读取数据 */
-	nrf24l01WriteReg(FLUSH_RX, NOP); 
+	// nrf24l01ReadBuf(RD_RX_PLOAD, _pRxBuf, RX_PLOAD_WIDTH); /* 读取数据 */
+	// nrf24l01WriteReg(FLUSH_RX, NOP); 
 
 	nRF24L01_CE_1();	  /* 进入接收状态 */
 
@@ -563,7 +636,7 @@ uint8_t nrf24l01RxData(uint8_t *_pRxBuf)
 
 	if(ulCount >= 4096)
 	{
-		nrf24l01ReadBuf(RD_RX_PLOAD, _pRxBuf, RX_PLOAD_WIDTH); /* 读取数据 */
+		// nrf24l01ReadBuf(RD_RX_PLOAD, _pRxBuf, RX_PLOAD_WIDTH); /* 读取数据 */
 		nrf24l01WriteReg(FLUSH_RX, NOP); 
 		return 0;
 	}

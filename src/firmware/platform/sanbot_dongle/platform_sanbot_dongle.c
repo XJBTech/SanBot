@@ -25,14 +25,14 @@
 
 #include "debug.h"
 
-#include "nRF24L01.h"
+#include "nrf24l01.h"
 
 #include "led.h"
 
 // TODO: Implement!
-int platformInit(void)
+int platformInit ( void )
 {
-	uint8_t i = 0;
+	uint8_t i = 0, checksum = 2;
 
 	//Low level init: Clock and Interrupt controller
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
@@ -43,17 +43,52 @@ int platformInit(void)
 	ledInit();
 
 	ledSet(0, 1);
+	ledSet(1, 1);
+
+	delay_ms(1000);
+
+	ledSet(0, 0);
+	ledSet(1, 0);
+
+	delay_ms(1000);
+
+	ledSet(0, 1);
+	ledSet(1, 1);
 
 	uartInit();
+	checksum--;
+	ledSet(0, 0);
+
+	DEBUG_PRINT("uart init successfully\n");
 
 	nrf24l01Init();
 
-	nrf24l01SetAddress();
 	i = nrf24l01ConnectCheck();
 
 	if(i)
 	{
-		ledSet(0, 0);
+		checksum--;
+		ledSet(1, 0);
+	}
+
+	nrf24l01SetAddress();
+
+	if(checksum == 0)
+	{
+		for(i = 0; i < 3; i++)
+		{
+			ledSet(0, 1);
+			ledSet(1, 1);
+
+			delay_ms(200);
+
+			ledSet(0, 0);
+			ledSet(1, 0);
+
+			delay_ms(200);
+		}
+	} else {
+		while(1);
 	}
 
 

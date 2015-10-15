@@ -19,5 +19,6 @@
 	#define SBN1_CONST_DEXMO_V1_L		0x02
 	#define SBN1_CONST_DEXMO_V1_R		0x03
  	#define SBN1_CONST_SANBOT_A			0x04
+ 	#define SBN1_CONST_SANBOT_DONGLE	0x05
 
 #endif

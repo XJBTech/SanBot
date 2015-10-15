@@ -23,7 +23,7 @@
 #define RX_ADR_WIDTH    5
 #define RX_PLOAD_WIDTH  SBN1_PAYLOAD_WIDTH
 
-#define CHANNEL 40
+#define CHANNEL 100
 
 #define NRF_READ_REG    0x00  // Define read command to register
 #define NRF_WRITE_REG   0x20  // Define write command to register

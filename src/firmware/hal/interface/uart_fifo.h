@@ -28,6 +28,24 @@
 
 #endif
 
+#if defined PLATFORM_DEVICE_SANBOT_DONGLE
+
+#define	UART1_FIFO_EN
+// #define UART1_REMAP
+#define UART1_BAUD		230400
+#define UART_DEBUG_COM 	COM1
+
+#endif
+
+#if defined PLATFORM_DEVICE_SANBOT_REMOTE
+
+#define	UART1_FIFO_EN
+// #define UART1_REMAP
+#define UART1_BAUD		115200
+#define UART_DEBUG_COM 	COM1
+
+#endif
+
 typedef enum
 {
 	COM1 = 0,

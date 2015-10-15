@@ -34,7 +34,7 @@ typedef struct {
     short gyro[3];
     short accel[3];
     short compass[3];
-    long quat[4];
+    float quat[4];
     float eular[3];
 } mpu_data_struct;
 

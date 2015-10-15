@@ -163,6 +163,7 @@
 <text x="67.31" y="38.3794" size="5.08" layer="25" rot="R90">2</text>
 <text x="30.6324" y="59.8678" size="5.08" layer="25" rot="MR330">3</text>
 <dimension x1="8.382" y1="80.645" x2="76.327" y2="80.5942" x3="42.356684375" y3="83.5399125" textsize="1.778" layer="47"/>
+<dimension x1="40.27" y1="40.02" x2="25" y2="65.9807625" x3="63.39700625" y3="71.09445" textsize="1.778" layer="47"/>
 </plain>
 <libraries>
 <library name="SparkFun-Connectors">

@@ -80,11 +80,8 @@
 
 #include "i2cs.h"
 
-#ifdef PLATFORM_DEVICE_DEXMO_A
-
 #define MPU9250
 
-#endif
 
 // #include "utils.h"
 #define i2c_write   			i2csWrite

@@ -28,39 +28,169 @@
 
 #if defined PLATFORM_DEVICE_SANBOT_A
 
-#include "sbn1.sanbot_a.h"
-#include "mpu9150.h"
-#include "adc.h"
+    #include "sbn1.sanbot_a.h"
+    #include "mpu9150.h"
+    #include "adc.h"
+    #include "tim.h"
 
-
-void wakeupDriver()
-{
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
-
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_10;
-    GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-    GPIO_SetBits(GPIOA, GPIO_Pin_1);
-    GPIO_SetBits(GPIOB, GPIO_Pin_5 | GPIO_Pin_10);
-}
-
-#endif
 
 int main()
 {
     systemInit();
     platformInit();
 
-    DEBUG_PRINT("init successfully\n");
+    DEBUG_PRINT ( "init successfully\n" );
+
+    // {
+    //     move_specfic temp_params;
+
+    //     temp_params.angle = 3.1415926f;
+    //     temp_params.velocity = 300;
+    //     temp_params.spin     = 0;
+    //     temp_params.duration = 0;
+
+    //     timImportQueue ( temp_params );
+
+    // }
+
+    while ( 1 )
+    {
+
+        uint8_t i;
+
+        nrf24l01RxMode();
+
+        // waiting package
+        i = 0x00;
+
+        while ( i != RX_DR )
+        {
+            i = nrf24l01RxData ( nRF_ReceiveBuffer );
+        }
+
+        ledSet(0, 1);
+        ledSet(1, 1);
+        ledSet(2, 1);
+
+        sbn1HandleReceived();
+
+        DEBUG_PRINT ( "Received packet\r\n" );
+
+        ledSet(0, 0);
+        ledSet(1, 0);
+        ledSet(2, 0);
+
+
+    }
+
+    while(1){
+        uint16_t angle;
+
+
+        for ( angle = 0; angle < 360; angle++ )
+        {
+
+            move_specfic temp_params;
+
+            // DEBUG_PRINT("tp1\n");
+
+            temp_params.angle = 2.0f * 3.1415926f * ( float ) angle / 360.0f;
+            temp_params.velocity = 1023;
+            temp_params.spin     = 0;
+            temp_params.duration = 0;
+
+            // DEBUG_PRINT("tp1\n");
+
+            timImportQueue ( temp_params );
+
+            delay_ms ( 20 );
+        }
+    }
+
+    while ( 1 )
+    {
+
+        uint8_t i;
+
+        nrf24l01RxMode();
+
+        // waiting package
+        i = 0x00;
+
+        while ( i != RX_DR )
+        {
+            i = nrf24l01RxData ( nRF_ReceiveBuffer );
+        }
+
+        sbn1HandleReceived();
+
+        DEBUG_PRINT ( "Received packet\r\n" );
+
+    }
 
     return 0;
 }
+
+#endif
+
+#if defined PLATFORM_DEVICE_SANBOT_DONGLE
+
+    #include "sbn1.sanbot_dongle.h"
+
+
+int main()
+{
+    systemInit();
+    platformInit();
+
+    DEBUG_PRINT ( "init successfully\n" );
+
+    while ( 1 )
+    {
+
+        SBN1_USART_Handle_Reveived();
+        SBN1_Loop();
+
+    }
+
+    return 0;
+}
+
+
+#endif
+
+#if defined PLATFORM_DEVICE_SANBOT_REMOTE
+
+#include "sbn1.sanbot_a.h"
+#include "mpu9150.h"
+#include "adc.h"
+
+int main()
+{
+    systemInit();
+    platformInit();
+
+    delay_ms(100);
+
+    DEBUG_PRINT("init successfully\n");
+
+    while(1){
+
+        uint32_t systick = timerGetRun();
+
+        mpu9150Get();
+
+        // result = dmp_read_quat(quat, &more);
+        // result = mpu_get_compass_reg(compass,&sensor_timestamp);
+
+        while(timerGetRun() < systick + 49)
+        {
+            
+        }
+
+        sbn1HandleReceived();
+
+    }
+}
+
+#endif

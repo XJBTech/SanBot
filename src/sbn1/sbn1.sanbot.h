@@ -23,10 +23,20 @@
 
 #endif
 
-/*==========  Operator  ==========*/
+#ifdef PLATFORM_DEVICE_SANBOT_DONGLE
+
+	#define SBN1_CONST_DEVICE			SBN1_CONST_SANBOT_DONGLE
+
+#endif
+
+/*==========  Operand  ==========*/
+
+ 	// common operand
+
+ 	#define SBN1_COMMON_OP_OFFSET		0x00
 
 	// probe if dongle is connected
-	#define SBN1_OP_PROBING_REQUEST 	0x01
+	#define SBN1_OP_PROBING_REQUEST 	(SBN1_COMMON_OP_OFFSET + 0x01)
 	// empty
 	#define SBN1_OP_PROBING_RESPONSE	0x02
 	// Device 1byte | ID 12byte
@@ -41,41 +51,40 @@
 	// Address 0x00 | Result 0x01=>success
 	// Address 1byte | Device 1byte | ID 12byte
 
-	// read dexmo status
-	#define SBN1_OP_READ_REQUEST		0x05
-	// Address 1byte | Mode 1byte
-	// Mode Single     0x01
-	//      Contineous 0x02
-	//      Stop       0x03
-	// nRF ------------------
-	//     OP 1byte | ADC/MPU 1byte
-	#define SBN1_OP_READ_RESPONSE		0x06
-	// Address 1byte | 0 ADC/MPU X Result X Lock XXXXX | ADC 14*12/8=21byte | MPU 4*4=16byte
-	// A/M = 0 => ADC
-	// Result = 0 for error
-
 	// self check
-	#define SBN1_OP_SELFCHECK_REQUEST	0x09
+	#define SBN1_OP_SELFCHECK_REQUEST	0x05
 	// Address 1byte
 	// Dongle = 0x00
-	#define SBN1_OP_SELFCEHCK_RESPONSE	0x0A
+	#define SBN1_OP_SELFCEHCK_RESPONSE	0x06
 	// Address 1byte | Result 1byte
 	// Result 0x00 error
 	//        0x01 success
 
+	#define SBN1_OP_RESET_RESPONSE		0x07
+
+ 	// specfic operand
+
+ 	#define SBN1_SPECFIC_OP_OFFSET		0x80
+
+	// read dexmo status
+	#define SBN1_OP_MOVE_REQUEST		(SBN1_SPECFIC_OP_OFFSET + 0x01)
+	// Address 1byte | angle float 4byte 0~2pi | velocity uint16 0~1024 | spin uint16 0~1024 | duration ms uint16
+	#define SBN1_OP_MOVE_RESPONSE		(SBN1_SPECFIC_OP_OFFSET + 0x02)
+	// Address 1byte | result 1byte
+
 	// get device info
-	#define SBN1_OP_INFO_REQUEST		0x0B
+	#define SBN1_OP_INFO_REQUEST		0x05
 	// Address 1byte
 	// Dongle = 0x00
-	#define SBN1_OP_INFO_RESPONSE		0x0C
+	#define SBN1_OP_INFO_RESPONSE		0x06
 	// Address 1byte | Result 1byte | Info
 	// Result 0x00 error
 	//        0x01 success
 
-    #define SBN1_OP_LED_REQUEST         0x0F
+    #define SBN1_OP_LED_REQUEST         0x07
     // Address 1byte | 00000 Package x LED xx
     // package = 1 means led 0 will flash when processing package
-    #define SBN1_OP_LED_RESPONSE        0x10
+    #define SBN1_OP_LED_RESPONSE        0x08
     // Address 1byte | Result 1byte | Info
     // Result 0x00 error
     //        0x01 success

@@ -21,9 +21,14 @@ CLOAD 				?= 0
 DEBUG 				?= 0
 
 PLATFORM			?= SANBOT
-DEVICE 				?= A
+# DEVICE 				?= A
+# REV 				?= A
+# device A for pcb v0
+# DEVICE 			?= DONGLE
+# REV 			?= A
+
+DEVICE 				?= REMOTE
 REV 				?= A
-#DEVICE 			?= DONGLE
 
 PLATFORM_DEVICE		?= $(PLATFORM)_$(DEVICE)
 PLATFORM_REV 		?= $(PLATFORM)_$(DEVICE)_$(REV)
@@ -36,12 +41,21 @@ ifeq ($(PLATFORM_DEVICE), SANBOT_DONGLE)
 STFLASH_ADDRESS		?= 0x8000000
 endif
 
+ifeq ($(PLATFORM_DEVICE), SANBOT_REMOTE)
+STFLASH_ADDRESS		?= 0x8000000
+endif
+
 ifeq ($(PLATFORM_DEVICE), SANBOT_A)
 LINKER_DIR = scripts/F103/linker
 ST_OBJ_DIR  = scripts/F103
 endif
 
 ifeq ($(PLATFORM_DEVICE), SANBOT_DONGLE)
+LINKER_DIR = scripts/F103/linker
+ST_OBJ_DIR  = scripts/F103
+endif
+
+ifeq ($(PLATFORM_DEVICE), SANBOT_REMOTE)
 LINKER_DIR = scripts/F103/linker
 ST_OBJ_DIR  = scripts/F103
 endif
@@ -60,12 +74,17 @@ VPATH_SANBOT_DONGLE += $(STLIB)/CMSIS/Core/CM3
 VPATH_SANBOT_DONGLE += $(STLIB)/CMSIS/Core/CM3/startup/gcc
 CRT0_SANBOT_DONGLE = startup_stm32f10x_hd.o system_stm32f10x.o
 
+VPATH_SANBOT_REMOTE += $(STLIB)/CMSIS/Core/CM3
+VPATH_SANBOT_REMOTE += $(STLIB)/CMSIS/Core/CM3/startup/gcc
+CRT0_SANBOT_REMOTE = startup_stm32f10x_hd.o system_stm32f10x.o
+
 # Should maybe be in separate file?
 -include $(ST_OBJ_DIR)/st_obj.mk
 
 VPATH += init hal/src modules/src utils/src drivers/src $(SBN1LIB)
 VPATH_SANBOT_A += platform/sanbot_a drivers/eMPL
-VPATH_SANBOT_DONGLE += platform/sanbot_dongle drivers/eMPL
+VPATH_SANBOT_DONGLE += platform/sanbot_dongle
+VPATH_SANBOT_REMOTE += platform/sanbot_remote drivers/eMPL
 
 ifeq ($(PLATFORM_DEVICE), SANBOT_A)
 VPATH += $(VPATH_SANBOT_A)
@@ -75,24 +94,32 @@ ifeq ($(PLATFORM_DEVICE), SANBOT_DONGLE)
 VPATH += $(VPATH_SANBOT_DONGLE)
 endif
 
+ifeq ($(PLATFORM_DEVICE), SANBOT_REMOTE)
+VPATH += $(VPATH_SANBOT_REMOTE)
+endif
+
 #core
 # PROJ_OBJ += core_cm3.o
 
 # Init
 PROJ_OBJ += main.o
+
+# platform
 PROJ_OBJ_SANBOT_A += platform_sanbot_a.o
 PROJ_OBJ_SANBOT_DONGLE += platform_sanbot_dongle.o
+PROJ_OBJ_SANBOT_REMOTE += platform_sanbot_remote.o
 
 # Drivers
-PROJ_OBJ_SANBOT_A += led.o nrf24l01.o
-# PROJ_OBJ_SANBOT_A += led.o nrf24l01.o i2cs.o mpu9150.o inv_mpu.o adc.o tim.o inv_mpu_dmp_motion_driver.o
+PROJ_OBJ_SANBOT_A += led.o nrf24l01.o tim.o
 # PROJ_OBJ_SANBOT1 += adc.o i2cs.o MPU9150.o nRF24L01.o tim.o inv_mpu_dmp_motion_driver.o inv_mpu.o
 PROJ_OBJ_SANBOT_DONGLE += led.o nrf24l01.o
+PROJ_OBJ_SANBOT_REMOTE += led.o nrf24l01.o i2cs.o mpu9150.o inv_mpu.o adc.o inv_mpu_dmp_motion_driver.o
 
 # Hal
 PROJ_OBJ_SANBOT_A += exti.o nvic.o uart_fifo.o rcc.o sbn1.sanbot_a.o
 # PROJ_OBJ_SANBOT1 +=  SBN1.o
 PROJ_OBJ_SANBOT_DONGLE += exti.o nvic.o uart_fifo.o rcc.o sbn1.sanbot_dongle.o
+PROJ_OBJ_SANBOT_REMOTE += exti.o nvic.o uart_fifo.o rcc.o sbn1.sanbot_remote.o
 
 # Modules
 PROJ_OBJ += system.o
@@ -108,6 +135,10 @@ endif
 
 ifeq ($(PLATFORM_DEVICE), SANBOT_DONGLE)
 OBJ += $(CRT0_SANBOT_DONGLE) $(ST_OBJ_SANBOT_DONGLE) $(PROJ_OBJ_SANBOT_DONGLE)
+endif
+
+ifeq ($(PLATFORM_DEVICE), SANBOT_REMOTE)
+OBJ += $(CRT0_SANBOT_REMOTE) $(ST_OBJ_SANBOT_REMOTE) $(PROJ_OBJ_SANBOT_REMOTE)
 endif
 
 ifdef P
@@ -133,6 +164,9 @@ INCLUDES_SANBOT_A += -I$(STLIB)/CMSIS/Core/CM3
 INCLUDES_SANBOT_DONGLE += -I$(STLIB)/STM32F10x_StdPeriph_Driver/inc
 INCLUDES_SANBOT_DONGLE += -I$(STLIB)/CMSIS/Core/CM3
 
+INCLUDES_SANBOT_REMOTE += -I$(STLIB)/STM32F10x_StdPeriph_Driver/inc
+INCLUDES_SANBOT_REMOTE += -I$(STLIB)/CMSIS/Core/CM3
+
 ifeq ($(PLATFORM_DEVICE), SANBOT_A)
 	PROCESSOR = -mcpu=cortex-m3 -mthumb -mfloat-abi=soft
 endif
@@ -141,11 +175,16 @@ ifeq ($(PLATFORM_DEVICE), SANBOT_DONGLE)
 	PROCESSOR = -mcpu=cortex-m3 -mthumb -mfloat-abi=soft
 endif
 
+ifeq ($(PLATFORM_DEVICE), SANBOT_REMOTE)
+	PROCESSOR = -mcpu=cortex-m3 -mthumb -mfloat-abi=soft
+endif
+
 #Flags required by the ST library
 STFLAGS += -DPLATFORM_$(PLATFORM) -DPLATFORM_DEVICE_$(PLATFORM_DEVICE) -DPLATFORM_REV_$(PLATFORM_REV)
 
-STFLAGS_SANBOT_A = -DSTM32F10X_HD -DHSE_VALUE=8000000 -include stm32f10x_conf.h
-STFLAGS_SANBOT_DONGLE = -DSTM32F10X_MD -DHSE_VALUE=8000000 -include stm32f10x_conf.h
+STFLAGS_SANBOT_A = -DSTM32F10X_MD -DHSE_VALUE=16000000 -include stm32f10x_conf.h
+STFLAGS_SANBOT_DONGLE = -DSTM32F10X_LD -DHSE_VALUE=16000000 -include stm32f10x_conf.h
+STFLAGS_SANBOT_REMOTE = -DSTM32F10X_MD -DHSE_VALUE=8000000 -include stm32f10x_conf.h
 
 ifeq ($(DEBUG), 1)
   CFLAGS += -O0 -g3 -DDEBUG
@@ -170,7 +209,9 @@ endif
 ifeq ($(PLATFORM_DEVICE), SANBOT_DONGLE)
 CFLAGS += $(INCLUDES_SANBOT_DONGLE) $(STFLAGS_SANBOT_DONGLE)
 endif
-
+ifeq ($(PLATFORM_DEVICE), SANBOT_REMOTE)
+CFLAGS += $(INCLUDES_SANBOT_REMOTE) $(STFLAGS_SANBOT_REMOTE)
+endif
 
 CFLAGS += -Wall -fno-strict-aliasing $(C_PROFILE) -Wunused-but-set-variable
 # Compiler flags to generate dependency files:
@@ -250,6 +291,8 @@ cloc:
 	@echo "\033[;32m"
 	@ cloc . --exclude-dir=eMPL,lib --ignore-whitespace --exclude-lang="D"
 	@echo "\033[0m"
+
+new_flash: new flash
 
 include scripts/targets.mk
 

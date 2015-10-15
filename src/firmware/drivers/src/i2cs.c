@@ -80,6 +80,21 @@
 
 #endif
 
+#if defined PLATFORM_DEVICE_SANBOT_REMOTE
+
+#define I2CS_GPIO_RCC RCC_APB2Periph_GPIOA
+#define I2CS_GPIO_PIN GPIO_Pin_11 | GPIO_Pin_12
+#define I2CS_GPIO_PORT GPIOA
+
+#define SDA_In()  {GPIOA->CRH&=0XFFFF0FFF;GPIOA->CRH|=8<<12;}
+#define SDA_Out() {GPIOA->CRH&=0XFFFF0FFF;GPIOA->CRH|=3<<12;}
+
+#define i2cs_SCL		PAout(12)
+#define i2cs_SDA		PAout(11)
+#define i2cs_Read_SDA	PAin(11)
+
+#endif
+
 void i2csInit(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;

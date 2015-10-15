@@ -32,6 +32,7 @@ led_struct led_array[10];
 
 void ledInit(void)
 {
+#if defined PLATFORM_DEVICE_SANBOT_A
 
 	GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -51,7 +52,26 @@ void ledInit(void)
 
 	led_array[2]._port = GPIOB;
 	led_array[2]._pin = GPIO_Pin_15;
+#elif defined PLATFORM_DEVICE_SANBOT_DONGLE
+	GPIO_InitTypeDef GPIO_InitStructure;
 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
+
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	led_array[0]._port = GPIOB;
+	led_array[0]._pin = GPIO_Pin_3;
+
+	led_array[1]._port = GPIOB;
+	led_array[1]._pin = GPIO_Pin_4;
+#endif
 	// DEBUG_PRINT("init successfully\n");
 
 }

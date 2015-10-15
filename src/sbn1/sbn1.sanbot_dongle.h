@@ -10,7 +10,7 @@
  * Originally created by Dexta Robotics on Jul 29 2015.
  */
 
-#include "sbn1.dexmo.h"
+#include "sbn1.sanbot.h"
 
 #ifndef __SBN1_DEXMO_DONGLE_H
 #define __SBN1_DEXMO_DONGLE_H

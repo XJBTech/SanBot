@@ -252,7 +252,7 @@ uint8_t mpu9150Get(void)
     dmp_read_quat(mpu_data.quat, &more);
     // DEBUG_PRINT("read quat from dmp st -> %d\n", timerGetRun());
     // DEBUG_PRINT("quat=>[%8d,%8d,%8d,%8d]\r\n",
-        // mpu_data.quat[0], mpu_data.quat[1], mpu_data.quat[2], mpu_data.quat[3]);
+    //     mpu_data.quat[0], mpu_data.quat[1], mpu_data.quat[2], mpu_data.quat[3]);
     return 0;
 }
 
