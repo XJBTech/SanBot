@@ -38,3 +38,6 @@ eagle.epf
 
 # mac
 .DS_Store
+
+# windows bash helper script
+copy_from_local*
